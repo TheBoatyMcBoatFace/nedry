@@ -5,7 +5,7 @@
 </head>
 <html>
   <body>
-    <div class="container">
+    <div class="container" onclick="playSound()">
       <div class="nedry">
         <img class="nedry-body" src="resources/body.png">
         <img class="nedry-head" src="resources/head.png">
@@ -14,27 +14,42 @@
       <audio id="player" autoplay loop>
         <source src="resources/ahahah.mp3" type="audio/mp3">
       </audio>
-      <input id="muteButton" type="button" onclick="toggleSound()" value="🔈 Mute" />
+      <input id="unmuteButton" type="button" onclick="toggleSound()" value="🔈 Unmute" />
     </div>
   </body>
   <link rel="stylesheet" href="resources/style.css">
   <script>
     const sound = document.getElementById('player');
-    const muteButton = document.getElementById("muteButton");
+    const unmuteButton = document.getElementById("unmuteButton");
     
+    // Initial state: assume it's paused due to browser autoplay policy
     function toggleSound() {
       if (sound.paused) {
         sound.play();
-        muteButton.value = "🔈 Mute";
+        unmuteButton.hidden = true; // Hide the button when playing
       } else {
         sound.pause();
-        muteButton.value = "🔈 Unmute";
+        unmuteButton.value = "🔈 Unmute"; // Change to Unmute when paused
+        unmuteButton.hidden = false; // Show the button when paused
       }
     }
 
-    // Ensure the button is visible when the page loads
+    // Hide the button when page loads and audio is playing
+    sound.addEventListener('play', () => {
+      unmuteButton.hidden = true;
+    });
+
+    // Show the button when audio is paused
+    sound.addEventListener('pause', () => {
+      unmuteButton.hidden = false;
+    });
+
+    // Attempt to force play on load
     window.onload = function() {
-      muteButton.hidden = false;
+      sound.play().catch(() => {
+        // Autoplay prevented: Show unmute button, adjust visibility
+        unmuteButton.hidden = false;
+      });
     };
   </script>
 </html>
