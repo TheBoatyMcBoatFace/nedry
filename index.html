@@ -20,36 +20,46 @@
   <link rel="stylesheet" href="resources/style.css">
   <script>
     const sound = document.getElementById('player');
-    const unmuteButton = document.getElementById("unmuteButton");
-    
-    // Initial state: assume it's paused due to browser autoplay policy
+    const unmuteButton = document.getElementById('unmuteButton');
+
+    // Read query parameter: ?mute=1
+    const params = new URLSearchParams(window.location.search);
+    const forceMute = params.get('mute') === '1';
+
     function toggleSound() {
       if (sound.paused) {
+        sound.muted = false;
         sound.play();
-        unmuteButton.hidden = true; // Hide the button when playing
+        unmuteButton.hidden = true;
       } else {
         sound.pause();
-        unmuteButton.value = "🔈 Unmute"; // Change to Unmute when paused
-        unmuteButton.hidden = false; // Show the button when paused
+        unmuteButton.value = "🔈 Unmute";
+        unmuteButton.hidden = false;
       }
     }
 
-    // Hide the button when page loads and audio is playing
+    // Hide button when audio is playing
     sound.addEventListener('play', () => {
       unmuteButton.hidden = true;
     });
 
-    // Show the button when audio is paused
+    // Show button when audio is paused
     sound.addEventListener('pause', () => {
       unmuteButton.hidden = false;
     });
 
-    // Attempt to force play on load
     window.onload = function() {
-      sound.play().catch(() => {
-        // Autoplay prevented: Show unmute button, adjust visibility
-        unmuteButton.hidden = false;
-      });
+      if (forceMute) {
+        // Explicitly disable autoplay behavior
+        sound.pause();
+        sound.muted = true;
+        unmuteButton.hidden = true;
+      } else {
+        sound.play().catch(() => {
+          // Autoplay blocked by browser
+          unmuteButton.hidden = false;
+        });
+      }
     };
   </script>
 </html>
